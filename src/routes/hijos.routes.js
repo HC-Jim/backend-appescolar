@@ -40,6 +40,8 @@ router.post("/", async (req, res) => {
   const paradero = req.body.paradero;
   const contactoNombre = req.body.contacto_nombre;
   const contactoRol = req.body.contacto_rol;
+  const lat = req.body.lat;
+  const lng = req.body.lng;
 
   if (!nombre) {
     res.status(400).json({ error: "El campo 'nombre' es obligatorio" });
@@ -52,7 +54,9 @@ router.post("/", async (req, res) => {
     movilidad: movilidad,
     paradero: paradero,
     contacto_nombre: contactoNombre,
-    contacto_rol: contactoRol
+    contacto_rol: contactoRol,
+    lat: lat,
+    lng: lng
   };
 
   const respuesta = await supabase.from(TABLA).insert([nuevoHijo]).select().single();
@@ -75,7 +79,9 @@ router.put("/:id", async (req, res) => {
     movilidad: req.body.movilidad,
     paradero: req.body.paradero,
     contacto_nombre: req.body.contacto_nombre,
-    contacto_rol: req.body.contacto_rol
+    contacto_rol: req.body.contacto_rol,
+    lat: req.body.lat,
+    lng: req.body.lng
   };
 
   const respuesta = await supabase.from(TABLA).update(cambios).eq("id", id).select().single();
