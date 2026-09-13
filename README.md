@@ -1,7 +1,28 @@
 # API App Escolar
 
 API REST simple hecha con **Node.js + Express** y **Supabase** como base de datos.
-Gestiona alumnos con los métodos HTTP: `GET`, `POST`, `PUT`, `DELETE`.
+Gestiona alumnos, comunicados, notas e hijos con los métodos HTTP: `GET`, `POST`, `PUT`, `DELETE`.
+
+## Estructura del proyecto
+
+```
+├── index.js              ← arranca el servidor (punto de entrada)
+├── src/
+│   ├── app.js            ← configura Express y engancha las rutas
+│   ├── config/
+│   │   └── supabase.js   ← conexión a Supabase (una sola vez)
+│   └── routes/           ← una archivo de rutas por recurso
+│       ├── alumnos.routes.js
+│       ├── comunicados.routes.js
+│       ├── notas.routes.js
+│       └── hijos.routes.js
+└── db/
+    ├── schema.sql        ← crea todas las tablas (proyecto nuevo)
+    └── migracion.sql     ← añade lo que falta (proyecto existente)
+```
+
+**Cómo fluye una petición:** `index.js` → `src/app.js` (elige la ruta según el prefijo)
+→ `src/routes/<recurso>.routes.js` (ejecuta la consulta) → `src/config/supabase.js` (habla con Supabase).
 
 ## Endpoints
 
@@ -40,8 +61,8 @@ Ejemplos de body JSON para `POST` / `PUT`:
 
 1. Entra en [supabase.com](https://supabase.com) y crea un proyecto.
 2. Ve a **SQL Editor → New query** y pulsa **Run** con:
-   - `schema.sql` → si es un proyecto **nuevo** (crea todas las tablas).
-   - `migracion.sql` → si **ya** habías creado la tabla `alumnos` antes (añade columnas y tablas nuevas sin borrar datos).
+   - `db/schema.sql` → si es un proyecto **nuevo** (crea todas las tablas).
+   - `db/migracion.sql` → si **ya** habías creado la tabla `alumnos` antes (añade columnas y tablas nuevas sin borrar datos).
 3. Ve a **Project Settings → API** y copia:
    - **Project URL** → será tu `SUPABASE_URL`
    - La clave **`service_role`** (en "Project API keys") → será tu `SUPABASE_KEY`
