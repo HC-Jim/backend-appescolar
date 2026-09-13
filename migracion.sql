@@ -1,22 +1,15 @@
 -- ============================================================
---  Esquema completo de la App Escolar (Supabase / PostgreSQL)
+--  MIGRACIÓN: úsalo SOLO si ya habías corrido el schema.sql viejo
+--  (la tabla "alumnos" ya existe con nombre/grado/direccion/paradero).
+--  Añade columnas nuevas y crea las tablas que faltan, sin borrar datos.
 --  Ejecutar en: Supabase -> SQL Editor -> New query -> Run
---  Nota: si ya creaste "alumnos" antes, usa "migracion.sql".
 -- ============================================================
 
--- --- Alumnos (rol Conductor: ruta y entregas) ---
-create table if not exists alumnos (
-  id            bigint generated always as identity primary key,
-  nombre        text not null,
-  grado         text,
-  direccion     text,
-  paradero      text,
-  hora_entrega  text,
-  estado        text default 'PENDIENTE',   -- PENDIENTE | ABORDO | ENTREGADO
-  creado_en     timestamptz default now()
-);
+-- 1) Nuevas columnas en alumnos
+alter table alumnos add column if not exists hora_entrega text;
+alter table alumnos add column if not exists estado text default 'PENDIENTE';
 
--- --- Comunicados (rol Apoderado) ---
+-- 2) Tablas nuevas
 create table if not exists comunicados (
   id        bigint generated always as identity primary key,
   titulo    text not null,
@@ -25,7 +18,6 @@ create table if not exists comunicados (
   creado_en timestamptz default now()
 );
 
--- --- Notas (rol Apoderado) ---
 create table if not exists notas (
   id        bigint generated always as identity primary key,
   curso     text not null,
@@ -34,10 +26,9 @@ create table if not exists notas (
   creado_en timestamptz default now()
 );
 
--- --- Hijos (rol Apoderado) ---
 create table if not exists hijos (
   id              bigint generated always as identity primary key,
-  nombre          text not null,
+  nombre          text,
   grado           text,
   movilidad       text,
   paradero        text,
@@ -46,24 +37,15 @@ create table if not exists hijos (
   creado_en       timestamptz default now()
 );
 
--- ============================================================
---  Datos de ejemplo
--- ============================================================
-insert into alumnos (nombre, grado, direccion, paradero, hora_entrega, estado) values
-  ('José Fernández', '5° Prim.', 'Av. Los Álamos 145', 'Paradero 1', '07:12', 'ENTREGADO'),
-  ('Sofía Ramírez',  '5° Prim.', 'Calle Magnolia 128', 'Paradero 2', '07:18', 'ENTREGADO'),
-  ('Sebastián León', '5° Prim.', 'Calle Bolívar 4',    'Paradero 6', null,    'ABORDO'),
-  ('Mateo Vargas',   '5° Prim.', 'Jr. Ayacucho 58',    'Paradero 7', null,    'PENDIENTE');
-
+-- 3) Datos de ejemplo para las tablas nuevas
 insert into comunicados (titulo, detalle, fecha) values
   ('Reunión de apoderados', 'Aula 5° Primaria · 6:00 p.m.', 'Lun 23'),
   ('Simulacro de sismo',    'Toda la institución',          'Mar 24'),
   ('Entrega de libretas',   'Auditorio principal',          'Mié 25');
 
 insert into notas (curso, detalle, valor) values
-  ('Matemática',    'Examen bimestral',    '18'),
-  ('Comunicación',  'Comprensión lectora', '17'),
-  ('Ciencia y Tec.', 'Proyecto de feria',  '20');
+  ('Matemática',   'Examen bimestral',    '18'),
+  ('Comunicación', 'Comprensión lectora', '17');
 
 insert into hijos (nombre, grado, movilidad, paradero, contacto_nombre, contacto_rol) values
   ('Julio Zuñiga', '5° Primaria', 'Movilidad N°04', 'Paradero Av. Principal', 'Carlos García', 'Conductor'),

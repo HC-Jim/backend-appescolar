@@ -5,27 +5,43 @@ Gestiona alumnos con los métodos HTTP: `GET`, `POST`, `PUT`, `DELETE`.
 
 ## Endpoints
 
-| Método | Ruta            | Qué hace                     |
-|--------|-----------------|------------------------------|
-| GET    | `/`             | Comprueba que la API vive    |
-| GET    | `/alumnos`      | Lista todos los alumnos      |
-| GET    | `/alumnos/:id`  | Devuelve un alumno           |
-| POST   | `/alumnos`      | Crea un alumno               |
-| PUT    | `/alumnos/:id`  | Actualiza un alumno          |
-| DELETE | `/alumnos/:id`  | Borra un alumno              |
+Cada recurso tiene los 5 métodos (mismo patrón): `GET` lista, `GET /:id` uno,
+`POST` crear, `PUT /:id` actualizar, `DELETE /:id` borrar.
 
-Body JSON para POST y PUT:
+| Recurso        | Rutas                                             | Rol       |
+|----------------|---------------------------------------------------|-----------|
+| Estado API     | `GET /`                                           | —         |
+| **alumnos**    | `/alumnos`, `/alumnos/:id`                         | Conductor |
+| **comunicados**| `/comunicados`, `/comunicados/:id`                | Apoderado |
+| **notas**      | `/notas`, `/notas/:id`                            | Apoderado |
+| **hijos**      | `/hijos`, `/hijos/:id`                            | Apoderado |
+
+Ejemplos de body JSON para `POST` / `PUT`:
 
 ```json
-{ "nombre": "Ana Perez", "grado": "3ro A", "direccion": "Av. Los Olivos 123", "paradero": "Parque Central" }
+// alumnos
+{ "nombre": "Ana Perez", "grado": "5° Prim.", "direccion": "Av. Los Olivos 123", "paradero": "Paradero 1", "hora_entrega": "07:20", "estado": "PENDIENTE" }
+
+// comunicados
+{ "titulo": "Reunión", "detalle": "Aula 5° · 6 p.m.", "fecha": "Lun 23" }
+
+// notas
+{ "curso": "Matemática", "detalle": "Examen bimestral", "valor": "18" }
+
+// hijos
+{ "nombre": "Julio Zuñiga", "grado": "5° Primaria", "movilidad": "Movilidad N°04", "paradero": "Paradero Av. Principal", "contacto_nombre": "Carlos García", "contacto_rol": "Conductor" }
 ```
+
+> `estado` de un alumno: `PENDIENTE`, `ABORDO` o `ENTREGADO`.
 
 ---
 
 ## 1. Preparar Supabase
 
 1. Entra en [supabase.com](https://supabase.com) y crea un proyecto.
-2. Ve a **SQL Editor → New query**, pega el contenido de `schema.sql` y pulsa **Run**.
+2. Ve a **SQL Editor → New query** y pulsa **Run** con:
+   - `schema.sql` → si es un proyecto **nuevo** (crea todas las tablas).
+   - `migracion.sql` → si **ya** habías creado la tabla `alumnos` antes (añade columnas y tablas nuevas sin borrar datos).
 3. Ve a **Project Settings → API** y copia:
    - **Project URL** → será tu `SUPABASE_URL`
    - La clave **`service_role`** (en "Project API keys") → será tu `SUPABASE_KEY`
