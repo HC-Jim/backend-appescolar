@@ -11,6 +11,7 @@ const comunicadosRoutes = require("./routes/comunicados.routes");
 const notasRoutes = require("./routes/notas.routes");
 const hijosRoutes = require("./routes/hijos.routes");
 const ubicacionesRoutes = require("./routes/ubicaciones.routes");
+const usuariosRoutes = require("./routes/usuarios.routes");
 
 const app = express();
 
@@ -29,5 +30,6 @@ app.use("/comunicados", comunicadosRoutes);
 app.use("/notas", notasRoutes);
 app.use("/hijos", hijosRoutes);
 app.use("/ubicaciones", ubicacionesRoutes);
+app.use("/usuarios", usuariosRoutes);
 
 module.exports = app;
