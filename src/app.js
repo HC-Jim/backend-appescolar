@@ -6,12 +6,11 @@ const express = require("express");
 const cors = require("cors");
 
 // Rutas por recurso
-const alumnosRoutes = require("./routes/alumnos.routes");
 const comunicadosRoutes = require("./routes/comunicados.routes");
 const notasRoutes = require("./routes/notas.routes");
-const hijosRoutes = require("./routes/hijos.routes");
 const ubicacionesRoutes = require("./routes/ubicaciones.routes");
 const usuariosRoutes = require("./routes/usuarios.routes");
+const asistenciasRoutes = require("./routes/asistencias.routes");
 
 const app = express();
 
@@ -25,11 +24,10 @@ app.get("/", (req, res) => {
 });
 
 // Cada grupo de rutas se monta bajo su propio prefijo
-app.use("/alumnos", alumnosRoutes);
 app.use("/comunicados", comunicadosRoutes);
 app.use("/notas", notasRoutes);
-app.use("/hijos", hijosRoutes);
 app.use("/ubicaciones", ubicacionesRoutes);
 app.use("/usuarios", usuariosRoutes);
+app.use("/asistencias", asistenciasRoutes);
 
 module.exports = app;

@@ -115,4 +115,47 @@ router.post("/restablecer", async (req, res) => {
   res.json({ mensaje: "Contraseña actualizada" });
 });
 
+// GET /usuarios/estudiantes/:movilidad -> estudiantes de esa movilidad (para el conductor)
+router.get("/estudiantes/:movilidad", async (req, res) => {
+  const movilidad = req.params.movilidad;
+  const respuesta = await supabase
+    .from(TABLA).select("*").eq("rol", "ESTUDIANTE").eq("movilidad", movilidad).order("id");
+
+  if (respuesta.error) {
+    res.status(500).json({ error: respuesta.error.message });
+    return;
+  }
+
+  res.json(respuesta.data);
+});
+
+// GET /usuarios/:id -> devuelve un usuario (para consultar su estado)
+router.get("/:id", async (req, res) => {
+  const id = req.params.id;
+  const respuesta = await supabase.from(TABLA).select("*").eq("id", id).single();
+
+  if (respuesta.error || !respuesta.data) {
+    res.status(404).json({ error: "Usuario no encontrado" });
+    return;
+  }
+
+  res.json(respuesta.data);
+});
+
+// PUT /usuarios/:id/estado -> cambia el estado del estudiante (PENDIENTE/ENTREGADO/CANCELADO)
+router.put("/:id/estado", async (req, res) => {
+  const id = req.params.id;
+  const estado = req.body.estado;
+
+  const respuesta = await supabase
+    .from(TABLA).update({ estado: estado }).eq("id", id).select().single();
+
+  if (respuesta.error) {
+    res.status(500).json({ error: respuesta.error.message });
+    return;
+  }
+
+  res.json(respuesta.data);
+});
+
 module.exports = router;
