@@ -2,7 +2,7 @@
 //  Rutas de UBICACIONES (seguimiento del bus) -> montadas en "/ubicaciones"
 //
 //  - El CONDUCTOR envia su posicion:   PUT /ubicaciones/:movilidad  { lat, lng }
-//  - El APODERADO lee la posicion:     GET /ubicaciones/:movilidad
+//  - El ESTUDIANTE lee la posicion:    GET /ubicaciones/:movilidad
 // ============================================================
 const express = require("express");
 const supabase = require("../config/supabase");
