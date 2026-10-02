@@ -20,7 +20,9 @@ router.get("/:movilidad", async (req, res) => {
     return;
   }
 
-  res.json(respuesta.data);
+  // Devuelve la forma exacta que usa la app (actualizado, no actualizado_en).
+  const u = respuesta.data;
+  res.json({ movilidad: u.movilidad, lat: u.lat, lng: u.lng, actualizado: u.actualizado_en });
 });
 
 // PUT /ubicaciones/:movilidad -> guarda/actualiza la posicion (upsert)

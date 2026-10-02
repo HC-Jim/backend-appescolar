@@ -12,6 +12,34 @@ const supabase = require("../config/supabase");
 const router = express.Router();
 const TABLA = "usuarios";
 
+// Devuelve el usuario con la forma EXACTA que usa la app (camelCase), para que la
+// app lo consuma directo sin convertir. Proyecto universitario: por simplicidad se
+// incluyen también las credenciales (en una app real NO se devolverían).
+function aUsuario(u) {
+  if (!u) return null;
+  return {
+    id: u.id,
+    nombre: u.nombre,
+    correo: u.correo,
+    rol: u.rol,
+    contrasena: u.contrasena,
+    pregunta: u.pregunta,
+    respuesta: u.respuesta,
+    estudianteNombre: u.estudiante_nombre,
+    estudianteGrado: u.estudiante_grado,
+    movilidad: u.movilidad,
+    lat: u.lat,
+    lng: u.lng,
+    celular: u.celular,
+    contactoEmergencia: u.contacto_emergencia,
+    dni: u.dni,
+    licencia: u.licencia,
+    placa: u.placa,
+    zona: u.zona,
+    estado: u.estado
+  };
+}
+
 // POST /usuarios/registrar -> crear cuenta
 router.post("/registrar", async (req, res) => {
   const nuevo = {
@@ -21,8 +49,8 @@ router.post("/registrar", async (req, res) => {
     pregunta: req.body.pregunta,
     respuesta: req.body.respuesta,
     rol: req.body.rol,
-    estudiante_nombre: req.body.estudiante_nombre,
-    estudiante_grado: req.body.estudiante_grado,
+    estudiante_nombre: req.body.estudianteNombre,
+    estudiante_grado: req.body.estudianteGrado,
     movilidad: req.body.movilidad,
     lat: req.body.lat,
     lng: req.body.lng
@@ -45,7 +73,7 @@ router.post("/registrar", async (req, res) => {
     return;
   }
 
-  res.status(201).json(respuesta.data);
+  res.status(201).json(aUsuario(respuesta.data));
 });
 
 // POST /usuarios/login -> validar credenciales
@@ -61,7 +89,7 @@ router.post("/login", async (req, res) => {
     return;
   }
 
-  res.json(respuesta.data);
+  res.json(aUsuario(respuesta.data));
 });
 
 // GET /usuarios/pregunta/:correo -> pregunta de seguridad de ese correo
@@ -83,7 +111,7 @@ router.get("/pregunta/:correo", async (req, res) => {
 router.post("/restablecer", async (req, res) => {
   const correo = req.body.correo;
   const respuestaSeguridad = req.body.respuesta;
-  const nuevaContrasena = req.body.nueva_contrasena;
+  const nuevaContrasena = req.body.nuevaContrasena;
 
   if (!nuevaContrasena) {
     res.status(400).json({ error: "Debes indicar la nueva contraseña" });
@@ -116,6 +144,7 @@ router.post("/restablecer", async (req, res) => {
 });
 
 // GET /usuarios/estudiantes/:movilidad -> estudiantes de esa movilidad (para el conductor)
+// Devuelve la forma "alumno" ya lista para la app (la app la consume directo, sin convertir).
 router.get("/estudiantes/:movilidad", async (req, res) => {
   const movilidad = req.params.movilidad;
   const respuesta = await supabase
@@ -126,7 +155,39 @@ router.get("/estudiantes/:movilidad", async (req, res) => {
     return;
   }
 
-  res.json(respuesta.data);
+  // Transforma cada usuario en un "alumno" con los nombres y campos que usa la app.
+  const alumnos = respuesta.data.map((u) => ({
+    id: String(u.id),
+    nombre: u.estudiante_nombre || u.nombre || "Estudiante",
+    grado: u.estudiante_grado || "",
+    direccion: "",
+    paradero: u.movilidad || "",
+    estado: u.estado || "PENDIENTE",   // PENDIENTE | ENTREGADO | CANCELADO
+    lat: u.lat,
+    lng: u.lng
+  }));
+
+  res.json(alumnos);
+});
+
+// PUT /usuarios/estudiantes/:movilidad/reiniciar
+// Reinicia la ruta: pone TODOS los estudiantes de la movilidad en PENDIENTE
+// en una sola operación (antes la app hacía una llamada por cada estudiante).
+router.put("/estudiantes/:movilidad/reiniciar", async (req, res) => {
+  const movilidad = req.params.movilidad;
+  const respuesta = await supabase
+    .from(TABLA)
+    .update({ estado: "PENDIENTE" })
+    .eq("rol", "ESTUDIANTE")
+    .eq("movilidad", movilidad)
+    .select();
+
+  if (respuesta.error) {
+    res.status(500).json({ error: respuesta.error.message });
+    return;
+  }
+
+  res.json({ actualizados: respuesta.data.length });
 });
 
 // GET /usuarios/:id -> devuelve un usuario (para consultar su estado)
@@ -139,7 +200,7 @@ router.get("/:id", async (req, res) => {
     return;
   }
 
-  res.json(respuesta.data);
+  res.json(aUsuario(respuesta.data));
 });
 
 // PUT /usuarios/:id/estado -> cambia el estado del estudiante (PENDIENTE/ENTREGADO/CANCELADO)
@@ -155,7 +216,7 @@ router.put("/:id/estado", async (req, res) => {
     return;
   }
 
-  res.json(respuesta.data);
+  res.json(aUsuario(respuesta.data));
 });
 
 module.exports = router;

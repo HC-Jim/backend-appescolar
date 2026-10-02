@@ -111,7 +111,8 @@ create table asistencias (
 );
 
 -- Ejemplos para los 3 estudiantes (ids 1, 2 y 3). Septiembre 2026.
--- Solo se guardan los dias especiales; el resto la app los pinta PRESENTE/SIN_CLASE.
+-- Solo se guardan los dias especiales; el resto (PRESENTE/SIN_CLASE) lo calcula
+-- el servidor al armar el calendario en GET /asistencias/:usuarioId.
 insert into asistencias (usuario_id, dia, estado) values
   -- Estudiante 1 (Julio)
   (1, 8,  'FALTA'),
