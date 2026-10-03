@@ -219,4 +219,32 @@ router.put("/:id/estado", async (req, res) => {
   res.json(aUsuario(respuesta.data));
 });
 
+// PUT /usuarios/:id -> actualiza los datos personales del perfil.
+// Solo cambia los campos que llegan en el body (nombre, celular, correo, contrasena).
+router.put("/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const cambios = {};
+  if (req.body.nombre !== undefined) cambios.nombre = req.body.nombre;
+  if (req.body.celular !== undefined) cambios.celular = req.body.celular;
+  if (req.body.correo !== undefined) cambios.correo = req.body.correo;
+  // La contraseña solo se cambia si llega y no viene vacía.
+  if (req.body.contrasena) cambios.contrasena = req.body.contrasena;
+
+  if (Object.keys(cambios).length === 0) {
+    res.status(400).json({ error: "No hay datos para actualizar" });
+    return;
+  }
+
+  const respuesta = await supabase
+    .from(TABLA).update(cambios).eq("id", id).select().single();
+
+  if (respuesta.error) {
+    res.status(500).json({ error: respuesta.error.message });
+    return;
+  }
+
+  res.json(aUsuario(respuesta.data));
+});
+
 module.exports = router;
